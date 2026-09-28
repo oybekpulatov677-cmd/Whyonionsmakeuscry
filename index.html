@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 1: Why Onions Make You Cry</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #f59e0b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --correct: #22c55e;
+      --incorrect: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .timer-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      background-color: white;
+      color: var(--primary);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Modal / Overlay for Login */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.75);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .login-box {
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .login-box p {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+
+    /* Reading Passage Box */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+      margin-bottom: 30px;
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      color: var(--primary);
+      margin-bottom: 18px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+
+    .passage-content {
+      font-size: 1.15rem;
+      line-height: 2.1;
+      color: #334155;
+    }
+
+    /* Word highlighting & clickable styling */
+    .word {
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s;
+      display: inline-block;
+    }
+
+    .word:hover {
+      background-color: #e0e7ff;
+      color: var(--primary);
+    }
+
+    .word.selected {
+      background-color: #fef08a;
+      font-weight: 600;
+    }
+
+    /* Floating Translator Widget (Top Right Hand Corner) */
+    .translator-widget {
+      position: sticky;
+      top: 90px;
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      border: 2px solid var(--primary);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+
+    .translator-widget h3 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .translation-output {
+      min-height: 120px;
+    }
+
+    .translated-word {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .translated-meaning {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 6px 0;
+    }
+
+    .translated-example {
+      font-size: 0.92rem;
+      color: #475569;
+      background: #f8fafc;
+      padding: 10px;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .empty-state {
+      color: #94a3b8;
+      font-style: italic;
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* Exercises Styling */
+    .exercise-item {
+      margin-bottom: 22px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .exercise-item p {
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .option-label:hover {
+      border-color: var(--primary);
+      background: #f4f4ff;
+    }
+
+    .option-label input {
+      accent-color: var(--primary);
+    }
+
+    .blank-input {
+      width: 140px;
+      padding: 6px 10px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+    }
+
+    .blank-input:focus {
+      border-color: var(--primary);
+    }
+
+    .feedback {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .feedback.correct {
+      color: var(--correct);
+    }
+
+    .feedback.incorrect {
+      color: var(--incorrect);
+    }
+
+    /* Modal Dialogs */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 750px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .modal-header h2 {
+      color: var(--primary);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .word-tag {
+      background: #e0e7ff;
+      color: var(--primary);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Modal -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <h2>Welcome Students!</h2>
+      <p>Unit 1: Why Onions Make You Cry</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" required placeholder="e.g. Jasur">
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" required placeholder="e.g. Karimov">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px;">Start Reading Passage</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header>
+    <div>
+      <h1>Unit 1: Why Onions Make You Cry</h1>
+      <small id="studentDisplay" style="opacity: 0.9; font-size: 0.9rem;"></small>
+    </div>
+    <div class="header-controls">
+      <div class="timer-badge" id="timerBadge">Time: 00:00</div>
+      <button class="btn" onclick="openTeacherDashboard()">Teacher Dashboard</button>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <div class="container">
+    <div>
+      <!-- Reading Passage Card -->
+      <div class="card">
+        <h2>Reading Passage (Click any word for Uzbek meaning)</h2>
+        <div class="passage-content" id="passageContent">
+          <!-- Text dynamically injected with clickable word spans -->
+        </div>
+      </div>
+
+      <!-- Exercises Card -->
+      <div class="card">
+        <h2>Check Comprehension & Vocabulary Exercises</h2>
+        <form id="exerciseForm">
+          
+          <!-- Section 1 -->
+          <h3 style="margin: 15px 0 10px 0; color: #334155;">I. Check Comprehension</h3>
+          
+          <div class="exercise-item">
+            <p>1. The passage is mainly about ______.</p>
+            <div class="options-group">
+              <label class="option-label"><input type="radio" name="q1" value="a"> A) why you cry while eating onions</label>
+              <label class="option-label"><input type="radio" name="q1" value="b"> B) why you cry while cutting onions</label>
+            </div>
+            <div class="feedback" id="fb_q1"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>2. A gas comes out of ______.</p>
+            <div class="options-group">
+              <label class="option-label"><input type="radio" name="q2" value="a"> A) onion cells</label>
+              <label class="option-label"><input type="radio" name="q2" value="b"> B) onion skins</label>
+            </div>
+            <div class="feedback" id="fb_q2"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>3. Put onions in the ______ before cutting.</p>
+            <div class="options-group">
+              <label class="option-label"><input type="radio" name="q3" value="a"> A) refrigerator</label>
+              <label class="option-label"><input type="radio" name="q3" value="b"> B) dark box</label>
+            </div>
+            <div class="feedback" id="fb_q3"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>4. [True / False] The color of the onion gas is yellow.</p>
+            <div class="options-group">
+              <label class="option-label"><input type="radio" name="q4" value="True"> True</label>
+              <label class="option-label"><input type="radio" name="q4" value="False"> False</label>
+            </div>
+            <div class="feedback" id="fb_q4"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>5. [True / False] Your tears wash away the onion gas.</p>
+            <div class="options-group">
+              <label class="option-label"><input type="radio" name="q5" value="True"> True</label>
+              <label class="option-label"><input type="radio" name="q5" value="False"> False</label>
+            </div>
+            <div class="feedback" id="fb_q5"></div>
+          </div>
+
+          <!-- Section 2 -->
+          <h3 style="margin: 25px 0 10px 0; color: #334155;">II. Build Vocabulary</h3>
+          <p style="margin-bottom: 15px; font-size: 0.95rem; color: #64748b;">Complete the sentences using words from the passage (goggles, gas, stings):</p>
+
+          <div class="exercise-item">
+            <p>1. Put on your <input type="text" id="q6" class="blank-input" placeholder="..."> when you ski.</p>
+            <div class="feedback" id="fb_q6"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>2. There is a strong smell of <input type="text" id="q7" class="blank-input" placeholder="..."> in the kitchen.</p>
+            <div class="feedback" id="fb_q7"></div>
+          </div>
+
+          <div class="exercise-item">
+            <p>3. If soap gets into the eyes, it <input type="text" id="q8" class="blank-input" placeholder="...">.</p>
+            <div class="feedback" id="fb_q8"></div>
+          </div>
+
+          <button type="button" class="btn btn-primary" style="padding: 12px 28px; font-size: 1.05rem;" onclick="checkAnswers()">Submit & Check Answers</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Floating Translation Widget (Right Side) -->
+    <div>
+      <div class="translator-widget">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1 0a13.905 13.905 0 01-2.427 7.001 11.83 11.83 0 01-1.396-1.571M18 19l-4-4 4-4m-4 4h9"></path></svg>
+          Uzbek Dictionary
+        </h3>
+        <div class="translation-output" id="translationOutput">
+          <div class="empty-state">Click any word in the text or exercises to reveal its Uzbek translation & example sentence!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results / Summary Modal for Student -->
+  <div class="modal" id="resultsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Great Job, <span id="resStudentName"></span>!</h2>
+        <button class="close-btn" onclick="closeModal('resultsModal')">&times;</button>
+      </div>
+      <div>
+        <p style="font-size: 1.1rem; margin-bottom: 10px;"><strong>Time Spent:</strong> <span id="resTimeSpent"></span></p>
+        <p style="font-size: 1.1rem; margin-bottom: 20px;"><strong>Score:</strong> <span id="resScore"></span></p>
+
+        <h3 style="margin-top: 20px; color: var(--primary);">Your Personal Vocabulary Search List</h3>
+        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">Here are all the words you looked up during your reading session:</p>
+        
+        <table id="searchedWordsTable">
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Uzbek Meaning</th>
+              <th>Example Sentence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teacher Dashboard Modal -->
+  <div class="modal" id="teacherModal">
+    <div class="modal-content" style="max-width: 900px;">
+      <div class="modal-header">
+        <h2>Teacher Dashboard</h2>
+        <button class="close-btn" onclick="closeModal('teacherModal')">&times;</button>
+      </div>
+      <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 15px;">Track student passage completion times, exercise scores, and vocabulary lookups.</p>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Time Spent</th>
+            <th>Score</th>
+            <th>Words Searched</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="teacherTableBody">
+          <!-- Populated via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Comprehensive Uzbek Dictionary with Definitions and Example Sentences
+    const dictionary = {
+      "your": { uz: "sizning / sening", example: "Your book is on the table." },
+      "mother": { uz: "ona / oyijon", example: "My mother cooks delicious food." },
+      "is": { uz: "bo'lmoq / -dir", example: "She is a student." },
+      "crying": { uz: "yig'layotgan", example: "The baby is crying loudly." },
+      "in": { uz: "ichida / -da", example: "He is in the room." },
+      "the": { uz: "aniq artikl", example: "The sun is shining." },
+      "kitchen": { uz: "oshxona", example: "We eat breakfast in the kitchen." },
+      "sad": { uz: "g'amgin / xafa", example: "Why do you look so sad?" },
+      "no": { uz: "yo'q", example: "No, I am not tired." },
+      "she": { uz: "u (ayol kishi)", example: "She likes reading books." },
+      "cutting": { uz: "to'g'rayotgan / kesayotgan", example: "He is cutting vegetables." },
+      "an": { uz: "bitta / bir", example: "I ate an apple." },
+      "onion": { uz: "piyoz", example: "Cutting an onion can make your eyes sting." },
+      "making": { uz: "majbur qilayotgan / tayyorlayotgan", example: "This movie is making me laugh." },
+      "her": { uz: "uni / uning (ayol)", example: "I gave her a book." },
+      "cry": { uz: "yig'lamoq", example: "Sad movies make people cry." },
+      "why": { uz: "nega / nimaga", example: "Why are you late?" },
+      "made": { uz: "qilingan / yasalgan", example: "The chair is made of wood." },
+      "up": { uz: "yuqoriga", example: "Stand up, please." },
+      "cells": { uz: "hujayralar", example: "All living organisms are made of cells." },
+      "cell": { uz: "hujayra", example: "An onion is made of tiny cells." },
+      "when": { uz: "qachonki / -ganda", example: "When you chop onions, a gas is released." },
+      "you": { uz: "siz / sen", example: "You are doing great!" },
+      "cut": { uz: "kesmoq / to'g'ramoq", example: "Be careful when you cut the bread." },
+      "break": { uz: "yorilmoq / buzilmoq / sinmoq", example: "Onion cells break open when cut." },
+      "open": { uz: "ochilmoq / ochiq", example: "Please open the window." },
+      "then": { uz: "so'ng / keyin", example: "First cook, then eat." },
+      "gas": { uz: "gaz", example: "A gas comes out of the onion cells." },
+      "comes": { uz: "chiqadi / keladi", example: "He comes home at 5 PM." },
+      "out": { uz: "tashqariga", example: "The gas comes out of the cell." },
+      "cannot": { uz: "qila olmaslik", example: "You cannot see the gas." },
+      "see": { uz: "ko'rmoq", example: "I can see the mountains." },
+      "but": { uz: "lekin / ammo", example: "It is small but strong." },
+      "it": { uz: "u (buyum/hayvon)", example: "It stings your eyes." },
+      "stings": { uz: "achishtiradi / sanchadi", example: "Soap stings when it gets into eyes." },
+      "sting": { uz: "achishtirmoq", example: "The bee can sting you." },
+      "eyes": { uz: "ko'zlar", example: "Close your eyes and relax." },
+      "eye": { uz: "ko'z", example: "Protect your eye from dust." },
+      "do": { uz: "bajarmoq", example: "Do your homework daily." },
+      "not": { uz: "emas / -maydi", example: "They do not like the gas." },
+      "like": { uz: "yoqtirmoq", example: "I like ice cream." },
+      "they": { uz: "ular", example: "They are playing football." },
+      "are": { uz: "bo'lmoq", example: "We are learning English." },
+      "trying": { uz: "harakat qilmoqda", example: "She is trying to solve the problem." },
+      "wash": { uz: "yuvmoq", example: "Tears wash away the gas." },
+      "away": { uz: "uzoqqa / ketkazib", example: "Put your phone away." },
+      "with": { uz: "bilan", example: "Wash your hands with soap." },
+      "tears": { uz: "ko'zyoshlar", example: "Tears fell from her eyes." },
+      "tear": { uz: "ko'zyosh", example: "A tear rolled down his cheek." },
+      "so": { uz: "shuning uchun / shunday qilib", example: "It was cold, so I wore a coat." },
+      "what": { uz: "nima", example: "What can you do?" },
+      "can": { uz: "qila olmoq", example: "You can wear goggles." },
+      "put": { uz: "solmoq / qo'ymoq", example: "Put the onion in the refrigerator." },
+      "refrigerator": { uz: "muzlatgich", example: "Keep milk in the refrigerator." },
+      "or": { uz: "yoki", example: "Do you want tea or coffee?" },
+      "cook": { uz: "pishirmoq", example: "Cook the onion first." },
+      "first": { uz: "avval / birinchi", example: "Wash your hands first." },
+      "now": { uz: "endi / hozir", example: "Now you can start." },
+      "if": { uz: "agar", example: "If you are in a hurry, wear goggles." },
+      "hurry": { uz: "shoshilinch", example: "He was in a hurry." },
+      "here": { uz: "bu yerda / mana", example: "Here is another good idea." },
+      "another": { uz: "boshqa / biror boshqa", example: "Let's try another answer." },
+      "idea": { uz: "fikr / g'oya", example: "That is a brilliant idea!" },
+      "wear": { uz: "kiymoq / taqmoq", example: "Wear goggles while skiing." },
+      "goggles": { uz: "himoya ko'zoynagi", example: "Wear goggles to protect your eyes." }
+    };
+
+    const rawPassageText = `Your mother is crying in the kitchen. Is she sad? No. She is cutting an onion! The onion is making her cry. Why? An onion is made up of many cells. When you cut an onion, the cells break open. Then, a gas comes out of the cells. You cannot see the gas, but it stings your eyes. Your eyes do not like the gas. They are trying to wash it away with tears. So you cry! What can you do? Put the onion in the refrigerator, or cook the onion first. Now, cut it. See? You do not cry. If you are in a hurry, here is another idea. Wear goggles!`;
+
+    // Global Tracking State
+    let studentData = {
+      firstName: '',
+      lastName: '',
+      startTime: null,
+      timerInterval: null,
+      secondsElapsed: 0,
+      searchedWords: {} // word -> {uz, example}
+    };
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPassage();
+    });
+
+    // Handle Login
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      studentData.firstName = document.getElementById('firstName').value.trim();
+      studentData.lastName = document.getElementById('lastName').value.trim();
+      
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('studentDisplay').innerText = `Student: ${studentData.firstName} ${studentData.lastName}`;
+      
+      startTimer();
+    });
+
+    // Start Timer
+    function startTimer() {
+      studentData.startTime = new Date();
+      studentData.timerInterval = setInterval(() => {
+        studentData.secondsElapsed++;
+        const mins = String(Math.floor(studentData.secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(studentData.secondsElapsed % 60).padStart(2, '0');
+        document.getElementById('timerBadge').innerText = `Time: ${mins}:${secs}`;
+      }, 1000);
+    }
+
+    // Render passage with clickable words
+    function renderPassage() {
+      const container = document.getElementById('passageContent');
+      const tokens = rawPassageText.split(/(\s+)/);
+
+      tokens.forEach(token => {
+        if (token.trim().length === 0) {
+          container.appendChild(document.createTextNode(token));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.innerText = token;
+          
+          // Clean punctuation for dictionary lookup
+          const cleanWord = token.toLowerCase().replace(/[^a-z]/g, '');
+          span.setAttribute('data-word', cleanWord);
+          
+          span.onclick = () => handleWordClick(cleanWord, span);
+          container.appendChild(span);
+        }
+      });
+    }
+
+    // Handle word click lookup
+    function handleWordClick(word, element) {
+      // Remove selected highlight from other words
+      document.querySelectorAll('.word.selected').forEach(el => el.classList.remove('selected'));
+      if (element) element.classList.add('selected');
+
+      const output = document.getElementById('translationOutput');
+      const entry = dictionary[word];
+
+      if (entry) {
+        output.innerHTML = `
+          <div class="translated-word">${word.toUpperCase()}</div>
+          <div class="translated-meaning">Uzbek: ${entry.uz}</div>
+          <div class="translated-example"><strong>Example:</strong> ${entry.example}</div>
+        `;
+
+        // Record searched word
+        studentData.searchedWords[word] = entry;
+      } else {
+        output.innerHTML = `
+          <div class="translated-word">${word.toUpperCase()}</div>
+          <div class="translated-meaning" style="font-size: 1rem; color: #64748b;">Translation not available for this exact word.</div>
+        `;
+      }
+    }
+
+    // Check Exercise Answers
+    function checkAnswers() {
+      let score = 0;
+      const totalQuestions = 8;
+
+      // Q1: b
+      const q1Val = document.querySelector('input[name="q1"]:checked')?.value;
+      if (q1Val === 'b') { score++; setFb('fb_q1', 'Correct!', true); }
+      else { setFb('fb_q1', 'Incorrect. Correct answer: B) why you cry while cutting onions', false); }
+
+      // Q2: a
+      const q2Val = document.querySelector('input[name="q2"]:checked')?.value;
+      if (q2Val === 'a') { score++; setFb('fb_q2', 'Correct!', true); }
+      else { setFb('fb_q2', 'Incorrect. Correct answer: A) onion cells', false); }
+
+      // Q3: a
+      const q3Val = document.querySelector('input[name="q3"]:checked')?.value;
+      if (q3Val === 'a') { score++; setFb('fb_q3', 'Correct!', true); }
+      else { setFb('fb_q3', 'Incorrect. Correct answer: A) refrigerator', false); }
+
+      // Q4: False
+      const q4Val = document.querySelector('input[name="q4"]:checked')?.value;
+      if (q4Val === 'False') { score++; setFb('fb_q4', 'Correct!', true); }
+      else { setFb('fb_q4', 'Incorrect. Correct answer: False (gas is invisible)', false); }
+
+      // Q5: True
+      const q5Val = document.querySelector('input[name="q5"]:checked')?.value;
+      if (q5Val === 'True') { score++; setFb('fb_q5', 'Correct!', true); }
+      else { setFb('fb_q5', 'Incorrect. Correct answer: True', false); }
+
+      // Q6: goggles
+      const q6Val = document.getElementById('q6').value.trim().toLowerCase();
+      if (q6Val === 'goggles') { score++; setFb('fb_q6', 'Correct!', true); }
+      else { setFb('fb_q6', 'Incorrect. Correct answer: goggles', false); }
+
+      // Q7: gas
+      const q7Val = document.getElementById('q7').value.trim().toLowerCase();
+      if (q7Val === 'gas') { score++; setFb('fb_q7', 'Correct!', true); }
+      else { setFb('fb_q7', 'Incorrect. Correct answer: gas', false); }
+
+      // Q8: stings
+      const q8Val = document.getElementById('q8').value.trim().toLowerCase();
+      if (q8Val === 'stings' || q8Val === 'sting') { score++; setFb('fb_q8', 'Correct!', true); }
+      else { setFb('fb_q8', 'Incorrect. Correct answer: stings', false); }
+
+      // Stop timer & show results
+      clearInterval(studentData.timerInterval);
+      saveSubmission(score, totalQuestions);
+      showResultsModal(score, totalQuestions);
+    }
+
+    function setFb(id, msg, isCorrect) {
+      const el = document.getElementById(id);
+      el.innerText = msg;
+      el.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+    }
+
+    // Save to LocalStorage for Teacher Dashboard
+    function saveSubmission(score, total) {
+      const mins = Math.floor(studentData.secondsElapsed / 60);
+      const secs = studentData.secondsElapsed % 60;
+      const timeStr = `${mins}m ${secs}s`;
+
+      const record = {
+        name: `${studentData.firstName} ${studentData.lastName}`,
+        time: timeStr,
+        score: `${score} / ${total}`,
+        searchedWords: Object.keys(studentData.searchedWords),
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })
+      };
+
+      let currentRecords = JSON.parse(localStorage.getItem('reading_juice_records') || '[]');
+      currentRecords.push(record);
+      localStorage.setItem('reading_juice_records', JSON.stringify(currentRecords));
+    }
+
+    // Show Student Results Modal
+    function showResultsModal(score, total) {
+      document.getElementById('resStudentName').innerText = `${studentData.firstName} ${studentData.lastName}`;
+      
+      const mins = Math.floor(studentData.secondsElapsed / 60);
+      const secs = studentData.secondsElapsed % 60;
+      document.getElementById('resTimeSpent').innerText = `${mins} minutes ${secs} seconds`;
+      document.getElementById('resScore').innerText = `${score} out of ${total} (${Math.round((score/total)*100)}%)`;
+
+      // Render searched words table
+      const tbody = document.querySelector('#searchedWordsTable tbody');
+      tbody.innerHTML = '';
+
+      const wordsArr = Object.entries(studentData.searchedWords);
+      if (wordsArr.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#94a3b8;">No words looked up during this session.</td></tr>';
+      } else {
+        wordsArr.forEach(([w, data]) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${w}</strong></td>
+            <td>${data.uz}</td>
+            <td><em>${data.example}</em></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('resultsModal').style.display = 'flex';
+    }
+
+    // Teacher Dashboard
+    function openTeacherDashboard() {
+      const records = JSON.parse(localStorage.getItem('reading_juice_records') || '[]');
+      const tbody = document.getElementById('teacherTableBody');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No student completions recorded yet.</td></tr>';
+      } else {
+        records.forEach(rec => {
+          const tr = document.createElement('tr');
+          const wordsTags = rec.searchedWords.length > 0 
+            ? rec.searchedWords.map(w => `<span class="word-tag">${w}</span>`).join(' ')
+            : '<em style="color:#94a3b8;">None</em>';
+
+          tr.innerHTML = `
+            <td><strong>${rec.name}</strong></td>
+            <td>${rec.time}</td>
+            <td><strong>${rec.score}</strong></td>
+            <td>${wordsTags}</td>
+            <td style="color:#64748b; font-size:0.85rem;">${rec.date}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('teacherModal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+  </script>
+</body>
+</html>
